@@ -5,6 +5,7 @@ using std::cin;
 using std::cout;
 using std::endl;
 
+
 Board::Board() {
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
@@ -16,6 +17,7 @@ Board::Board() {
 Board::~Board() {}
 
 void Board::viewBoardShip() const {
+    system("clear");
     for (int i = 0; i < 10; i++) {
         if (i == 0) {
             char temp = 'A';
@@ -43,6 +45,8 @@ void Board::viewThisPlace(int i, int j) const {
         cout << "□";
     } else if (mapShip[i][j] == destroyedShip) {
         cout << "X";
+    } else if (mapShip[i][j] == point) {
+        cout << "◦";
     }
 }
 
@@ -50,6 +54,12 @@ void Board::setShip(char a, int value) {
     int charNumber = replaceCharInt(a);
     value--;
     mapShip[value][charNumber] = ship;
+}
+
+void Board::setPoint(char a, int value) {
+    int charNumber = replaceCharInt(a);
+    value--;
+    mapShip[value][charNumber] = point;
 }
 
 void Board::addShipsManual() {
@@ -87,7 +97,6 @@ void Board::addShipsManual() {
             insertSingleM();
             fourMasters.addSwim();
         }
-        system("clear");
     }
 }
 
@@ -109,6 +118,22 @@ bool Board::insertSingleM() {
 }
 
 bool Board::insertTwoM() {
+    char boardChar;
+    int boardValue;
+
+    for (int i = 0; i < 2; i++) {
+        do {
+            cout << "Enter the place where you want to insert the "<<numerMaster[i]<<" (e.g. A2) or [q] to go back:\n";
+            cin >> boardChar;
+            if (boardChar == 'q')
+                return false;
+            cin >> boardValue;
+
+        } while (!checkFree(boardChar, boardValue) && cout << "This place is not available. Choose another place!\n");
+        setPoint(boardChar, boardValue);
+        viewBoardShip();
+    }
+    
     return true;
 }
 
@@ -154,7 +179,7 @@ bool Board::checkFree(char boardChar, int vertical) {
         free = false;
     if (vertical - 1 >= 0 && horizontal - 1 >= 0 && mapShip[vertical - 1][horizontal - 1] == ship)
         free = false;
-    
+
     return free;
 }
 
