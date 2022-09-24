@@ -34,13 +34,17 @@ public:
     void addShipRandom();
     void viewBoardShip() const;
     void viewThisPlace(int vertical, int horizontal) const;
+    void replaceShipPoints();
+    void deletePoints();
+    bool insertMasters(int masters = 1);
     bool insertSingleM();
     bool insertTwoM();
     bool insertThreeM();
     bool insertFourM();
+    bool checkFree(char a, int value);
+    bool checkPointNeighbor(char a, int value);
     void setShip(char a, int value);
     void setPoint(char a, int value);
-    bool checkFree(char a, int value);
     int checkAvailable(MastShip array[], int number);
     int checkAvailable(MastShip& ship);
     int replaceCharInt(char take);

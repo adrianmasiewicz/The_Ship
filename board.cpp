@@ -5,7 +5,6 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-
 Board::Board() {
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
@@ -79,70 +78,73 @@ void Board::addShipsManual() {
 
         if (choose == 1) {
             static int placed = 0;
-            if (insertSingleM())
+            if (insertMasters(1))
                 singleMasters[placed++].addSwim();
         }
         if (choose == 2) {
             static int placed = 0;
-            insertTwoM();
+            insertMasters(2);
             twoMasters[placed++].addSwim();
         }
         if (choose == 3) {
             static int placed = 0;
-            insertThreeM();
+            insertMasters(3);
             threeMasters[placed++].addSwim();
         }
         if (choose == 4) {
-            static int placed = 0;
-            insertSingleM();
+            insertMasters(4);
             fourMasters.addSwim();
         }
     }
 }
 
-bool Board::insertSingleM() {
+bool Board::insertMasters(int masters) {
     char boardChar;
     int boardValue;
+    bool makeLoops;
 
-    do {
-        cout << "Enter the place where you want to insert the ship (e.g. A2) or [q] to go back:\n";
-        cin >> boardChar;
-        if (boardChar == 'q')
-            return false;
-        cin >> boardValue;
-
-    } while (!checkFree(boardChar, boardValue) && cout << "This place is not available. Choose another place!\n");
-
-    setShip(boardChar, boardValue);
-    return true;
-}
-
-bool Board::insertTwoM() {
-    char boardChar;
-    int boardValue;
-
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < masters; i++) {
         do {
-            cout << "Enter the place where you want to insert the "<<numerMaster[i]<<" (e.g. A2) or [q] to go back:\n";
+            cout << "Enter the place where you want to insert the " << numerMaster[i] << " (e.g. A2) or [q] to go back:\n";
             cin >> boardChar;
-            if (boardChar == 'q')
+            if (boardChar == 'q') {
+                deletePoints();
                 return false;
+            }
             cin >> boardValue;
 
-        } while (!checkFree(boardChar, boardValue) && cout << "This place is not available. Choose another place!\n");
+            if (i == 0)
+                makeLoops = !checkFree(boardChar, boardValue);
+            else
+                makeLoops = !(checkPointNeighbor(boardChar, boardValue) && checkFree(boardChar, boardValue));
+
+        } while (makeLoops && cout << "This place is not available. Choose another place!\n");
+
         setPoint(boardChar, boardValue);
         viewBoardShip();
     }
-    
+    replaceShipPoints();
     return true;
 }
 
-bool Board::insertThreeM() {
-    return true;
+void Board::replaceShipPoints() {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (mapShip[i][j] == point) {
+                mapShip[i][j] = ship;
+            }
+        }
+    }
 }
 
-bool Board::insertFourM() {
-    return true;
+void Board::deletePoints() {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (mapShip[i][j] == point) {
+                mapShip[i][j] = empty;
+            }
+        }
+    }
 }
 
 int Board::checkAvailable(MastShip array[], int number) {
@@ -153,7 +155,10 @@ int Board::checkAvailable(MastShip array[], int number) {
     return value;
 }
 int Board::checkAvailable(MastShip& ship) {
-    return 1;
+    if (ship.checkSwim() == true)
+        return 0;
+    else 
+        return 1;
 }
 
 bool Board::checkFree(char boardChar, int vertical) {
@@ -181,6 +186,22 @@ bool Board::checkFree(char boardChar, int vertical) {
         free = false;
 
     return free;
+}
+
+bool Board::checkPointNeighbor(char boardChar, int vertical) {
+    int horizontal = replaceCharInt(boardChar);
+    vertical--;
+
+    if (vertical + 1 < 10 && mapShip[vertical + 1][horizontal] == point)
+        return true;
+    if (vertical - 1 >= 0 && mapShip[vertical - 1][horizontal] == point)
+        return true;
+    if (horizontal + 1 < 10 && mapShip[vertical][horizontal + 1] == point)
+        return true;
+    if (horizontal - 1 >= 0 && mapShip[vertical][horizontal - 1] == point)
+        return true;
+
+    return false;
 }
 
 int Board::replaceCharInt(char a) {
