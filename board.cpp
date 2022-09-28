@@ -15,6 +15,85 @@ Board::Board() {
 
 Board::~Board() {}
 
+void Board::addShipsManual() {
+    int available;
+    do {
+        available = 0;
+        int choose = 0;
+        viewBoardShip();
+        cout << "Select the ship you want to insert:\n";
+        if (checkAvailable(singleMasters, 4)) {
+            cout << "1 - Single-Masters (available: " << checkAvailable(singleMasters, 4) << ")\n";
+            available++;
+        }
+        if (checkAvailable(twoMasters, 3)) {
+            cout << "2 - Two-Masters (available: " << checkAvailable(twoMasters, 3) << ")\n";
+            available++;
+        }
+        if (checkAvailable(threeMasters, 2)) {
+            cout << "3 - Three-Masters (available: " << checkAvailable(threeMasters, 2) << ")\n";
+            available++;
+        }
+        if (checkAvailable(fourMasters, 1)) {
+            cout << "4 - Four-Masters (available: " << checkAvailable(fourMasters, 1) << ")\n";
+            available++;
+        }
+
+        if(available)
+        cin >> choose;
+
+        if (choose == 1) {
+            static int placed = 0;
+            if (insertMasters(1))
+                singleMasters[placed++].addSwim();
+        }
+        if (choose == 2) {
+            static int placed = 0;
+            if (insertMasters(2))
+                twoMasters[placed++].addSwim();
+        }
+        if (choose == 3) {
+            static int placed = 0;
+            if (insertMasters(3))
+                threeMasters[placed++].addSwim();
+        }
+        if (choose == 4) {
+            static int placed = 0;
+            if (insertMasters(4))
+                fourMasters[placed++].addSwim();
+        }
+    } while (available);
+}
+
+bool Board::insertMasters(int masters) {
+    char boardChar;
+    int boardValue;
+    bool makeLoops;
+
+    for (int i = 0; i < masters; i++) {
+        do {
+            cout << "Enter the place where you want to insert the " << numerMaster[i] << " (e.g. A2) or [q] to go back:\n";
+            cin >> boardChar;
+            if (boardChar == 'q') {
+                deletePoints();
+                return false;
+            }
+            cin >> boardValue;
+
+            if (i == 0)
+                makeLoops = !checkFree(boardChar, boardValue);
+            else
+                makeLoops = !(checkPointNeighbor(boardChar, boardValue) && checkFree(boardChar, boardValue));
+
+        } while (makeLoops && cout << "This place is not available. Choose another place!\n");
+
+        setPoint(boardChar, boardValue);
+        viewBoardShip();
+    }
+    replaceShipPoints();
+    return true;
+}
+
 void Board::viewBoardShip() const {
     system("clear");
     for (int i = 0; i < 10; i++) {
@@ -49,84 +128,6 @@ void Board::viewThisPlace(int i, int j) const {
     }
 }
 
-void Board::setShip(char a, int value) {
-    int charNumber = replaceCharInt(a);
-    value--;
-    mapShip[value][charNumber] = ship;
-}
-
-void Board::setPoint(char a, int value) {
-    int charNumber = replaceCharInt(a);
-    value--;
-    mapShip[value][charNumber] = point;
-}
-
-void Board::addShipsManual() {
-    while (true) {
-        int choose;
-        viewBoardShip();
-        cout << "Select the ship you want to insert:\n";
-        if (checkAvailable(singleMasters, 4))
-            cout << "1 - Single-Masters (available: " << checkAvailable(singleMasters, 4) << ")\n";
-        if (checkAvailable(twoMasters, 3))
-            cout << "2 - Two-Masters (available: " << checkAvailable(twoMasters, 3) << ")\n";
-        if (checkAvailable(threeMasters, 2))
-            cout << "3 - Three-Masters (available: " << checkAvailable(threeMasters, 2) << ")\n";
-        if (checkAvailable(fourMasters))
-            cout << "4 - Four-Masters (available: " << checkAvailable(fourMasters) << ")\n";
-        cin >> choose;
-
-        if (choose == 1) {
-            static int placed = 0;
-            if (insertMasters(1))
-                singleMasters[placed++].addSwim();
-        }
-        if (choose == 2) {
-            static int placed = 0;
-            insertMasters(2);
-            twoMasters[placed++].addSwim();
-        }
-        if (choose == 3) {
-            static int placed = 0;
-            insertMasters(3);
-            threeMasters[placed++].addSwim();
-        }
-        if (choose == 4) {
-            insertMasters(4);
-            fourMasters.addSwim();
-        }
-    }
-}
-
-bool Board::insertMasters(int masters) {
-    char boardChar;
-    int boardValue;
-    bool makeLoops;
-
-    for (int i = 0; i < masters; i++) {
-        do {
-            cout << "Enter the place where you want to insert the " << numerMaster[i] << " (e.g. A2) or [q] to go back:\n";
-            cin >> boardChar;
-            if (boardChar == 'q') {
-                deletePoints();
-                return false;
-            }
-            cin >> boardValue;
-
-            if (i == 0)
-                makeLoops = !checkFree(boardChar, boardValue);
-            else
-                makeLoops = !(checkPointNeighbor(boardChar, boardValue) && checkFree(boardChar, boardValue));
-
-        } while (makeLoops && cout << "This place is not available. Choose another place!\n");
-
-        setPoint(boardChar, boardValue);
-        viewBoardShip();
-    }
-    replaceShipPoints();
-    return true;
-}
-
 void Board::replaceShipPoints() {
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
@@ -154,11 +155,17 @@ int Board::checkAvailable(MastShip array[], int number) {
     }
     return value;
 }
-int Board::checkAvailable(MastShip& ship) {
-    if (ship.checkSwim() == true)
-        return 0;
-    else 
-        return 1;
+
+void Board::setShip(char a, int value) {
+    int charNumber = replaceCharInt(a);
+    value--;
+    mapShip[value][charNumber] = ship;
+}
+
+void Board::setPoint(char a, int value) {
+    int charNumber = replaceCharInt(a);
+    value--;
+    mapShip[value][charNumber] = point;
 }
 
 bool Board::checkFree(char boardChar, int vertical) {

@@ -10,7 +10,7 @@ private:
     MastShip singleMasters[4] = {1, 1, 1, 1};
     MastShip twoMasters[3] = {2, 2, 2};
     MastShip threeMasters[2] = {3, 3};
-    MastShip fourMasters = 4;
+    MastShip fourMasters [1]= {4};
 
     enum charShip {
         ship,
@@ -46,7 +46,6 @@ public:
     void setShip(char a, int value);
     void setPoint(char a, int value);
     int checkAvailable(MastShip array[], int number);
-    int checkAvailable(MastShip& ship);
     int replaceCharInt(char take);
 };
 
