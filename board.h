@@ -42,7 +42,9 @@ public:
     bool insertThreeM();
     bool insertFourM();
     bool checkFree(char a, int value);
+    bool checkFreeComputer(int horizontal, int vertical);
     bool checkPointNeighbor(char a, int value);
+    bool checkPointNeighbor(int a, int value);
     void setShip(char a, int value);
     void setPoint(char a, int value);
     int checkAvailable(MastShip array[], int number);

@@ -6,7 +6,8 @@ int main() {
     Board manBoard;
     Board computerBoard;
 
-    manBoard.addShipsManual();
-
+    //manBoard.addShipsManual();
+    computerBoard.addShipRandom();
+    computerBoard.viewBoardShip();
     
 }

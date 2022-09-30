@@ -1,5 +1,6 @@
 #include "board.h"
 #include <iostream>
+#include "thought.h"
 
 using std::cin;
 using std::cout;
@@ -14,6 +15,65 @@ Board::Board() {
 }
 
 Board::~Board() {}
+
+void Board::addShipRandom() {
+    int horizontal;
+    int vertical;
+    srand(time(NULL));
+
+    for (int i = 0; i < 4; i++) {
+        do {
+            do {
+                vertical = (std::rand() % 10);
+                horizontal = (std::rand() % 10);
+            } while (!checkFreeComputer(horizontal, vertical));
+
+        } while (i > 0 && !checkPointNeighbor(vertical, horizontal));
+        mapShip[vertical][horizontal] = point;
+        singleMasters[i].addSwim();
+    }
+    replaceShipPoints();
+
+    for (int j = 0; j < 2; j++) {
+        for (int i = 0; i < 3; i++) {
+            do {
+                do {
+                    vertical = (std::rand() % 10);
+                    horizontal = (std::rand() % 10);
+                } while (!checkFreeComputer(horizontal, vertical));
+
+            } while (i > 0 && !checkPointNeighbor(vertical, horizontal));
+            mapShip[vertical][horizontal] = point;
+            singleMasters[i].addSwim();
+        }
+        replaceShipPoints();
+    }
+
+    for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < 2; i++) {
+            do {
+                do {
+                    vertical = (std::rand() % 10);
+                    horizontal = (std::rand() % 10);
+                } while (!checkFreeComputer(horizontal, vertical));
+
+            } while (i > 0 && !checkPointNeighbor(vertical, horizontal));
+            mapShip[vertical][horizontal] = point;
+            singleMasters[i].addSwim();
+        }
+        replaceShipPoints();
+    }
+
+    for (int i = 0; i < 4; i++) {
+        do {
+            vertical = (std::rand() % 10);
+            horizontal = (std::rand() % 10);
+        } while (!checkFreeComputer(horizontal, vertical));
+        mapShip[vertical][horizontal] = ship;
+        singleMasters[i].addSwim();
+    }
+}
+
 
 void Board::addShipsManual() {
     int available;
@@ -39,8 +99,8 @@ void Board::addShipsManual() {
             available++;
         }
 
-        if(available)
-        cin >> choose;
+        if (available)
+            cin >> choose;
 
         if (choose == 1) {
             static int placed = 0;
@@ -68,7 +128,7 @@ void Board::addShipsManual() {
 bool Board::insertMasters(int masters) {
     char boardChar;
     int boardValue;
-    bool makeLoops;
+    bool makeLoops = true;
 
     for (int i = 0; i < masters; i++) {
         do {
@@ -83,7 +143,7 @@ bool Board::insertMasters(int masters) {
             if (i == 0)
                 makeLoops = !checkFree(boardChar, boardValue);
             else
-                makeLoops = !(checkPointNeighbor(boardChar, boardValue) && checkFree(boardChar, boardValue));
+                makeLoops = !(checkPointNeighbor(boardChar, boardValue - 1) && checkFree(boardChar, boardValue));
 
         } while (makeLoops && cout << "This place is not available. Choose another place!\n");
 
@@ -195,9 +255,49 @@ bool Board::checkFree(char boardChar, int vertical) {
     return free;
 }
 
+bool Board::checkFreeComputer(int horizontal, int vertical) {
+    bool free = true;
+
+    if (mapShip[vertical][horizontal] == ship)
+        free = false;
+    if (vertical + 1 < 10 && mapShip[vertical + 1][horizontal] == ship)
+        free = false;
+    if (vertical - 1 >= 0 && mapShip[vertical - 1][horizontal] == ship)
+        free = false;
+    if (horizontal + 1 < 10 && mapShip[vertical][horizontal + 1] == ship)
+        free = false;
+    if (horizontal - 1 >= 0 && mapShip[vertical][horizontal - 1] == ship)
+        free = false;
+    if (vertical + 1 < 10 && horizontal + 1 < 10 && mapShip[vertical + 1][horizontal + 1] == ship)
+        free = false;
+    if (vertical + 1 < 10 && horizontal - 1 >= 0 && mapShip[vertical + 1][horizontal - 1] == ship)
+        free = false;
+    if (vertical - 1 >= 0 && horizontal + 1 < 10 && mapShip[vertical - 1][horizontal + 1] == ship)
+        free = false;
+    if (vertical - 1 >= 0 && horizontal - 1 >= 0 && mapShip[vertical - 1][horizontal - 1] == ship)
+        free = false;
+
+    return free;
+}
+
 bool Board::checkPointNeighbor(char boardChar, int vertical) {
     int horizontal = replaceCharInt(boardChar);
-    vertical--;
+
+    if (vertical + 1 < 10 && mapShip[vertical + 1][horizontal] == point)
+        return true;
+    if (vertical - 1 >= 0 && mapShip[vertical - 1][horizontal] == point)
+        return true;
+    if (horizontal + 1 < 10 && mapShip[vertical][horizontal + 1] == point)
+        return true;
+    if (horizontal - 1 >= 0 && mapShip[vertical][horizontal - 1] == point)
+        return true;
+
+    return false;
+}
+
+bool Board::checkPointNeighbor(int vertical, int horizontal) {
+    if (mapShip[vertical][horizontal] == point)
+        return false;
 
     if (vertical + 1 < 10 && mapShip[vertical + 1][horizontal] == point)
         return true;
